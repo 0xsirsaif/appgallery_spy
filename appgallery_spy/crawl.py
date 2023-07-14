@@ -39,10 +39,9 @@ def click_view_all(driver) -> None:
     view_all_button.click()
 
 
-def load_source(driver) -> str:
+def load_source(driver, scroll_limit: int) -> str:
     act = ActionChains(driver)
-    # TODO: scroll to the end of the page, now it is just 3 times
-    for i in range(1, 4):
+    for i in range(1, scroll_limit):
         print("scroll number:", i)
         act.send_keys(Keys.END).perform()
         sleep(5)
@@ -66,10 +65,10 @@ def get_comment_items(soup: BeautifulSoup) -> list[dict]:
     return reviews_data
 
 
-def crawl(app_id: str) -> None:
+def crawl(app_id: str, scroll_limit=3) -> None:
     driver = driver_setup(app_id)
     click_view_all(driver)
-    html = load_source(driver)
+    html = load_source(driver, scroll_limit)
     soup = BeautifulSoup(html, "html.parser")
     reviews_data = get_comment_items(soup)
 
