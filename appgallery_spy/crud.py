@@ -22,7 +22,10 @@ def get_recent_reviews(reviews_collection, count: int):
     return reviews
 
 
-def insert_data(data: list[dict], reviews_collection) -> None:
+def insert_data(data: list[dict], reviews_collection=None) -> None:
+    if not reviews_collection:
+        db = get_db()
+        reviews_collection = db["reviews"]
     print("Saving data...")
     reviews_collection.insert_many(data)
     print("Data is saved.")

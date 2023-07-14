@@ -2,12 +2,15 @@ import pathlib
 from time import sleep
 
 from bs4 import BeautifulSoup
+from pymongo.errors import ServerSelectionTimeoutError
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
+
+from appgallery_spy import crud
 
 COMMENT_ITEMS_LOCATORS = (
     "body > div > div.box > div > div.componentContainer > div.CommentList > div.listContainer > div.comment_item"
@@ -69,5 +72,12 @@ def crawl(app_id: str) -> None:
     html = load_source(driver)
     soup = BeautifulSoup(html, "html.parser")
     reviews_data = get_comment_items(soup)
-    print(reviews_data)
+
+    try:
+        crud.insert_data(reviews_data)
+    except ServerSelectionTimeoutError as e:
+        print("ServerSelectionTimeoutError:", e)
+    except Exception as e:
+        print("Exception:", e)
+
     driver.quit()
