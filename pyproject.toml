@@ -69,7 +69,7 @@ dependencies = [
 ]
 
 [project.scripts]
-appgallery_crawler = "appgallery_spy.cli:app"
+appgallery_spy = "appgallery_spy.cli:app"
 
 [project.optional-dependencies]
 dev = [
