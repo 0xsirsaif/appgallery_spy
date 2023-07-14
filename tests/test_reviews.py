@@ -1,10 +1,11 @@
-import pytest
-from fastapi.testclient import TestClient
 from datetime import datetime
-from bson import ObjectId
-from appgallery_spy.api import app
-
 from unittest import mock
+
+import pytest
+from bson import ObjectId
+from fastapi.testclient import TestClient
+
+from appgallery_spy.api import app
 
 
 @pytest.fixture

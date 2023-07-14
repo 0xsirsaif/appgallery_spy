@@ -1,48 +1,24 @@
-from fastapi import FastAPI, Depends
-from pydantic import BaseModel
-import pymongo
-from pymongo import MongoClient
+from fastapi import Depends, FastAPI
 from pymongo.collection import Collection
-from datetime import datetime
 
+from appgallery_spy import crud
+from appgallery_spy.models import RecentReviewsRequest, Review
 
 app = FastAPI()
 
 
-def get_db() -> Collection:
-    client = MongoClient("mongodb://db:27017")
-    db = client["AppGallery"]
-    review_collection = db["review"]
-    return review_collection
-
-
-class RecentReviewsRequest(BaseModel):
-    count: int
-
-
-class ReviewResponse(BaseModel):
-    username: str
-    date: datetime
-    review_text: str
-    rating: int
-
-
 @app.post("/reviews/recent")
-async def get_recent_reviews(request: RecentReviewsRequest, review_collection: Collection = Depends(get_db)):
+async def get_recent_reviews(request: RecentReviewsRequest, db: Collection = Depends(crud.get_db)):
     count = request.count
+    review_collection = db["review"]
+    return crud.get_recent_reviews(review_collection, count)
 
-    recent_reviews = review_collection.find().sort("date", pymongo.DESCENDING).limit(count)
-    reviews = [
-        ReviewResponse(
-            username=review["username"],
-            date=review["date"],
-            review_text=review["review_text"],
-            rating=review["rating"]
-        )
-        for review in recent_reviews
-    ]
 
-    return reviews
+@app.post("/reviews/insert")
+def insert_reviews(data: list[Review], db: Collection = Depends(crud.get_db)) -> None:
+    review_collection = db["review"]
+    reviews_as_dict = [review.model_dump() for review in data]
+    return crud.insert_data(reviews_as_dict, review_collection)
 
 
 @app.get("/")
